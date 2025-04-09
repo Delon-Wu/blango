@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
-from configurations import Configuration
+from configurations import Configuration, values
+import dj_database_url
 
 class Dev(Configuration):
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,9 +26,10 @@ class Dev(Configuration):
     SECRET_KEY = 'django-insecure-+sn%dpa!086+g+%44z9*^j^q-u4n!j(#wl)x9a%_1op@zz2+1-'
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = True
+    DEBUG = values.BooleanValue(True)
 
-    ALLOWED_HOSTS = ['*']
+    # ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = values.ListValue(["localhost", "0.0.0.0", ".codio.io"])
     X_FRAME_OPTIONS = 'ALLOW-FROM ' + os.environ.get('CODIO_HOSTNAME') + '-8000.codio.io'
     CSRF_COOKIE_SAMESITE = None
     CSRF_TRUSTED_ORIGINS = ['https://' + os.environ.get('CODIO_HOSTNAME') + '-8000.codio.io']
@@ -86,11 +88,13 @@ class Dev(Configuration):
     # Database
     # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+    # DATABASES = values.DatabaseURLValue(f"sqlite:///{BASE_DIR}/db.sqlite3") # 只能设置一个数据库
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
+        "default": dj_database_url.config(default=f"sqlite:///{BASE_DIR}/db.sqlite3"),
+        "alternative": dj_database_url.config(
+            "ALTERNATIVE_DATABASE_URL",
+            default=f"sqlite:///{BASE_DIR}/alternative_db.sqlite3",
+        ),
     }
 
 
@@ -118,7 +122,9 @@ class Dev(Configuration):
 
     LANGUAGE_CODE = 'en-us'
 
-    TIME_ZONE = 'UTC'
+    # TIME_ZONE = 'UTC'
+    # TIME_ZONE = values.Value("UTC", environ_prefix="BLANGO")
+    TIME_ZONE = values.Value("UTC")
 
     USE_I18N = True
 
@@ -136,3 +142,7 @@ class Dev(Configuration):
     # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
     DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+class Prod(Dev):
+  DEBUG = False
+  SECRET_KEY = values.SecretValue()
