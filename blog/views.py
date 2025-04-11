@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from blog.models import Post
 from django.utils import timezone
 from django.shortcuts import redirect
@@ -10,7 +10,9 @@ def index(request):
   return render(request, "blog/index.html", {"posts": posts})
 
 
-def post_detail(request):
+def post_detail(request, slug):
+  post = get_object_or_404(Post, slug=slug)
+
   if request.user.is_active:
     if request.method == "POST":
         comment_form = CommentForm(request.POST)
@@ -25,6 +27,6 @@ def post_detail(request):
         comment_form = CommentForm()
   else:
     comment_form = None
-    return render(
-      request, "blog/post-detail.html", {"post": post, "comment_form": comment_form}
-    )
+  return render(
+    request, "blog/post-detail.html", {"post": post, "comment_form": comment_form}
+  )
