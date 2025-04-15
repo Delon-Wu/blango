@@ -181,6 +181,13 @@ class Dev(Configuration):
       },
     }
 
+    PASSWORD_HASHERS = [
+      'django.contrib.auth.hashers.Argon2PasswordHasher', # 需要另外安装argon库
+      'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+      'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+      'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    ]
+
 class Prod(Dev):
   DEBUG = False
   SECRET_KEY = values.SecretValue()
